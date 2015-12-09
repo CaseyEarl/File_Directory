@@ -22,8 +22,19 @@ public class Directory {
     }
 
     public byte[] directory2bytes() {
-        
+
     }
 
+    public short ialloc(String filename) {
+
+    }
+
+    public boolean ifree(short iNumber) {
+
+    }
+
+    public short namei(String filename) {
+
+    }
 
 }
