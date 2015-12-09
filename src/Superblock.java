@@ -1,38 +1,42 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
 
 public class Superblock {
-    private final int inodeBlocks = 64;
+    private final int defaultInodeBlocks = 64;
     public int totalBlocks;
-    public int totalInodes;
+    public int inodeBlocks;
     public int freeList;
 
-    public Superblock(int diskSize){
-        byte[] superBlock = new byte[Disk.blockSize];
-        SysLib.rawread(0, superBlock);
-        totalBlocks = SysLib.bytes2int(superBlock, 0);
-        totalInodes = SysLib.bytes2int(superBlock, 4);
-        freeList = SysLib.bytes2int(superBlock, 8);
-
-        if(totalBlocks == diskSize && totalInodes > 0 && freeList >= 2){
-            return;
+    public Superblock(int var1) {
+        byte[] var2 = new byte[512];
+        SysLib.rawread(0, var2);
+        this.totalBlocks = SysLib.bytes2int(var2, 0);
+        this.inodeBlocks = SysLib.bytes2int(var2, 4);
+        this.freeList = SysLib.bytes2int(var2, 8);
+        if(this.totalBlocks != var1 || this.inodeBlocks <= 0 || this.freeList < 2) {
+            this.totalBlocks = var1;
+            SysLib.cerr("default format( 64 )\n");
+            this.format();
         }
-        else{
-            totalBlocks = diskSize;
-            //format(inodeBlocks);
-        }
-
     }
 
     void sync() {
-        byte[] tempBlock = new byte[512];
-        SysLib.int2bytes(this.totalBlocks, tempBlock, 0);
-        SysLib.int2bytes(this.inodeBlocks, tempBlock, 4);
-        SysLib.int2bytes(this.freeList, tempBlock, 8);
-        SysLib.rawwrite(0, tempBlock);
+        byte[] var1 = new byte[512];
+        SysLib.int2bytes(this.totalBlocks, var1, 0);
+        SysLib.int2bytes(this.inodeBlocks, var1, 4);
+        SysLib.int2bytes(this.freeList, var1, 8);
+        SysLib.rawwrite(0, var1);
         SysLib.cerr("Superblock synchronized\n");
     }
 
     void format() {
-        this.totalInodes = this.inodeBlocks;
+        this.format(64);
+    }
+
+    void format(int var1) {
+        this.inodeBlocks = var1;
 
         for(short var2 = 0; var2 < this.inodeBlocks; ++var2) {
             Inode var3 = new Inode();
@@ -54,5 +58,35 @@ public class Superblock {
         }
 
         this.sync();
+    }
+
+    public int getFreeBlock() {
+        int var1 = this.freeList;
+        if(var1 != -1) {
+            byte[] var2 = new byte[512];
+            SysLib.rawread(var1, var2);
+            this.freeList = SysLib.bytes2int(var2, 0);
+            SysLib.int2bytes(0, var2, 0);
+            SysLib.rawwrite(var1, var2);
+        }
+
+        return var1;
+    }
+
+    public boolean returnBlock(int var1) {
+        if(var1 < 0) {
+            return false;
+        } else {
+            byte[] var2 = new byte[512];
+
+            for(int var3 = 0; var3 < 512; ++var3) {
+                var2[var3] = 0;
+            }
+
+            SysLib.int2bytes(this.freeList, var2, 0);
+            SysLib.rawwrite(var1, var2);
+            this.freeList = var1;
+            return true;
+        }
     }
 }
