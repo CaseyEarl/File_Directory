@@ -1,3 +1,5 @@
+import java.io.File;
+
 /**
  * Created by caseyearl on 12/8/15.
  */
@@ -19,6 +21,36 @@ public class FileSystem {
             this.directory.bytes2directory(dirData);
         }
         close(dir);
+    }
+
+    public FileTableEntry open(String fileName, String mode){
+        FileTableEntry ftEnt = fileTable.falloc(fileName, mode);
+        if(mode.equals("w")){
+            if(deallocAllBlocks(ftEnt) == false){
+                return null;
+            }
+        }
+        return ftEnt;
+    }
+
+    public int write(FileTableEntry ftEnt, byte[] buffer){
+        return -1;
+    }
+
+    public int read(FileTableEntry ftEnt, byte[] buffer){
+        return -1;
+    }
+
+    public int fsize(FileTableEntry ftEnt){
+        return -1;
+    }
+
+    public boolean close(FileTableEntry ftEnt){
+        return false;
+    }
+
+    public boolean deallocAllBlocks(FileTableEntry ftEnt){
+        return false;
     }
 
 }

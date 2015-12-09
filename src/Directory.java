@@ -28,15 +28,15 @@ public class Directory {
 
 
     public short ialloc(String filename) {
-
+        return 1;
     }
 
     public boolean ifree(short iNumber) {
-
+        return false;
     }
 
     public short namei(String filename) {
-
+        return 1;
     }
 
 }
