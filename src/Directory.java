@@ -17,7 +17,7 @@ public class Directory {
     }
 
     public int bytes2directory(byte data[]) {
-        
+
     }
 
     public byte[] directory2bytes() {
