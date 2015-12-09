@@ -30,7 +30,7 @@ public class FileStructureTable {
                         } catch (InterruptedException e) {
 
                         }
-                    } else if (inode.flag == "to be deleted") {
+                    } else if (inode.flag == 2) {
                         iNumber = -1;
                         return null;
                     } else if (mode.equals("w")) {

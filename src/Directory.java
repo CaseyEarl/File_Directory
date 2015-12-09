@@ -18,10 +18,19 @@ public class Directory {
     }
 
     public int bytes2directory(byte data[]) {
-
+        int offset = 0;
+        for (int i = 0; i < fsize.length; i++, offset += 4) {
+            fsize[i] = SysLib.bytes2int(data, offset);
+        }
+        for (int i = 0; i < fnames.length; i++, offset += maxChars * 2) {
+            String fname = new String(data, offset, maxChars * 2);
+            fname.getChars(0, fsize[i], fnames[i], 0);
+        }
+        //return
     }
 
     public byte[] directory2bytes() {
+        byte toReturn[];
 
     }
 

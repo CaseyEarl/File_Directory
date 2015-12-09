@@ -31,9 +31,14 @@ public class Inode {
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
+
+
+
     }
 
     int toDisk (short iNumber) {
+
+
         return 1;
     }
 
