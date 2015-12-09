@@ -55,6 +55,7 @@ public final static int ERROR = -1;
 private static Scheduler scheduler;
 private static Disk disk;
 private static Cache cache;
+private static FileSystem fs;
 
 // Synchronized Queues
 private static SyncQueue waitQueue;  // for threads to wait for their child
@@ -74,7 +75,8 @@ switch( irq ) {
 case INTERRUPT_SOFTWARE: // System calls
     switch( cmd ) {
     case BOOT:
-    // instantiate and start a scheduler
+    // instantiate and start a schedule
+    fs = new FileSystem(Disk.blockSize);
     scheduler = new Scheduler( );
     scheduler.start( );
 

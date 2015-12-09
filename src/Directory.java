@@ -18,11 +18,11 @@ public class Directory {
     }
 
     public int bytes2directory(byte data[]) {
-        
+        return 1;
     }
 
     public byte[] directory2bytes() {
-        
+        return new byte[100];
     }
 
 
