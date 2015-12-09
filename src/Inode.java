@@ -23,7 +23,21 @@ public class Inode {
         int blockNumber = 1 + iNumber / 16;
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread(blockNumber, data);
-        int offset  ;
+        int offset = (iNumber % 16) * 32;
+
+        length = SysLib.bytes2int(data, offset);
+        offset += 4;
+        count = SysLib.bytes2short(data, offset);
+        offset += 2;
+        flag = SysLib.bytes2short(data, offset);
+        offset += 2;
     }
+
+    int toDisk (short iNumber) {
+
+    }
+
+    
+
 
 }
