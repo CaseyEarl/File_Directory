@@ -18,6 +18,7 @@ public class Directory {
     }
 
     public int bytes2directory(byte data[]) {
+
         return 1;
     }
 
@@ -25,5 +26,17 @@ public class Directory {
         return new byte[100];
     }
 
+
+    public short ialloc(String filename) {
+
+    }
+
+    public boolean ifree(short iNumber) {
+
+    }
+
+    public short namei(String filename) {
+
+    }
 
 }
