@@ -200,11 +200,11 @@ case INTERRUPT_SOFTWARE: // System calls
     cache.flush( );
     return OK;
     case OPEN:    // to be implemented in project
-        if(myTcb = scheduler.getMyTcb() != null){
+        if((myTcb = scheduler.getMyTcb()) != null){
             String s = (String) args;
-            FileTableEntry ent = fs.open(s[0], s[1]);
-            int fd = myTcb.getFd(ent);
-            return fd;
+            //FileTableEntry ent = fs.open(s[0], s[1]);
+            //int fd = myTcb.getFd(ent);
+            //return fd;
         }
     return OK;
     case CLOSE:   // to be implemented in project
