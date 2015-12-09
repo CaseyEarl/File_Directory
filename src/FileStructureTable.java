@@ -1,11 +1,14 @@
 import java.io.File;
 import java.io.InterruptedIOException;
+import java.util.Vector;
 
 public class FileStructureTable {
+    private Vector table;
     private Directory dir;
 
-    FileStructureTable(Directory setDir) {
-        setDir = dir;
+    FileStructureTable(Directory directory) {
+        table = new Vector()
+        dir = directory;
     }
 
 
@@ -42,6 +45,14 @@ public class FileStructureTable {
         FileTableEntry e = new FileTableEntry(inode, iNumber, mode);
         //table.addElement(e); //create table entry and register it
         return e;
+    }
+
+    public synchronized boolean ffree (FileTableEntry e) {
+        return true;
+    }
+
+    public synchronized boolean fempty() {
+        return table.isEmpty();
     }
 
 }

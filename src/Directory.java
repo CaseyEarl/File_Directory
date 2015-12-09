@@ -26,15 +26,22 @@ public class Directory {
     }
 
     public short ialloc(String filename) {
+        if (filename.equals("f1")) {
+            return -1;
+        }
 
     }
 
     public boolean ifree(short iNumber) {
-
+        if (iNumber == 1) {
+            return true;
+        }
     }
 
     public short namei(String filename) {
-
+        if (filename.equals("/")) {
+            return 0;
+        }
     }
 
 }
