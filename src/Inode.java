@@ -34,7 +34,7 @@ public class Inode {
     }
 
     int toDisk (short iNumber) {
-
+        return 1;
     }
 
 

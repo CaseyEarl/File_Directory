@@ -1,5 +1,6 @@
 
 public class Directory {
+
     private static int maxChars = 30;
 
     private int fsize[];
@@ -21,7 +22,8 @@ public class Directory {
     }
 
     public byte[] directory2bytes() {
-
+        
     }
+
 
 }
