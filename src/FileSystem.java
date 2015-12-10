@@ -6,12 +6,12 @@ import java.io.File;
 public class FileSystem {
     private Superblock superBlock;
     private Directory directory;
-    private FileStructureTable fileTable;
+    private FileTable fileTable;
 
-    public FileSystem(int diskBlocks){
-        this.superBlock = new Superblock(diskBlocks);
+    public FileSystem(int files){
+        this.superBlock = new Superblock(files);
         this.directory = new Directory(this.superBlock.inodeBlocks);
-        this.fileTable = new FileStructureTable(this.directory);
+        this.fileTable = new FileTable(this.directory);
 
         FileTableEntry dir = open("/", "r");
         int dirSize = fsize(dir);
@@ -33,6 +33,10 @@ public class FileSystem {
         return ftEnt;
     }
 
+    public void format(int iBlocks){
+        this.superBlock.format(iBlocks);
+    }
+
     public int write(FileTableEntry ftEnt, byte[] buffer){
         return -1;
     }
@@ -42,6 +46,7 @@ public class FileSystem {
     }
 
     public int fsize(FileTableEntry ftEnt){
+
         return -1;
     }
 

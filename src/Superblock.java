@@ -10,7 +10,7 @@ public class Superblock {
     public int freeList;
 
     public Superblock(int diskSize) {
-        byte[] var2 = new byte[512];
+        byte[] var2 = new byte[diskSize];
         SysLib.rawread(0, var2);
         this.totalBlocks = SysLib.bytes2int(var2, 0);
         this.inodeBlocks = SysLib.bytes2int(var2, 4);
@@ -18,7 +18,7 @@ public class Superblock {
         if(this.totalBlocks != diskSize || this.inodeBlocks <= 0 || this.freeList < 2) {
             this.totalBlocks = diskSize;
             SysLib.cerr("default format( 64 )\n");
-            this.format(diskSize);
+            this.format(defaultInodeBlocks);
         }
     }
 
