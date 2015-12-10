@@ -17,7 +17,7 @@ public class FileSystem {
         int dirSize = fsize(dir);
         if(dirSize > 0){
             byte[] dirData = new byte[dirSize];
-            read(dir, dirData);
+            read(dir.iNumber, dirData);
             this.directory.bytes2directory(dirData);
         }
         close(dir);
@@ -37,11 +37,11 @@ public class FileSystem {
         this.superBlock.format(iBlocks);
     }
 
-    public int write(FileTableEntry ftEnt, byte[] buffer){
-        return -1;
+    public int write(int ftEnt, byte[] buffer){
+        return fileTable.write(ftEnt, buffer);
     }
 
-    public int read(FileTableEntry ftEnt, byte[] buffer){
+    public int read(int ftEnt, byte[] buffer){
         return -1;
     }
 
