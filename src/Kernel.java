@@ -176,6 +176,9 @@ public class Kernel {
                             case STDERR:
                                 System.out.println("threadOS: caused read errors");
                                 return ERROR;
+                            case 3:
+                                myTcb = scheduler.getMyTcb();
+                                return fs.read(myTcb.getFtEnt(param), (byte[])args);
                         }
                         // return FileSystem.read( param, byte args[] );
                         return ERROR;
@@ -192,7 +195,8 @@ public class Kernel {
                                 break;
                             case 3:
                                 //return fs.write(param, (byte[]) args);
-
+                                myTcb = scheduler.getMyTcb();
+                                return fs.write(myTcb.getFtEnt(param), (byte[]) args);
                         }
                         return OK;
                     case CREAD:   // to be implemented in assignment 4
@@ -218,7 +222,8 @@ public class Kernel {
                         }
 
                     case CLOSE:   // to be implemented in project
-
+                        myTcb = scheduler.getMyTcb();
+                        fs.close(myTcb.getFtEnt(param));
                         return OK;
                     case SIZE:    // to be implemented in project
                         return OK;

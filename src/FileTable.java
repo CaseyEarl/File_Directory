@@ -48,8 +48,17 @@ public class FileTable {
         return e;
     }
 
-    public boolean ffree(FileTableEntry toDelete){
-        return false;
+    public synchronized boolean ffree(FileTableEntry toDelete){
+
+        toDelete.count--;
+        toDelete.inode.toDisk(toDelete.iNumber);
+        toDelete.inode.unregisterIndexBlock();
+        table.removeElement(toDelete);
+        toDelete = null;
+
+
+        this.notify();
+        return true;
     }
 
     public boolean fempty(){
