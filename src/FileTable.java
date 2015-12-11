@@ -50,15 +50,31 @@ public class FileTable {
 
     public synchronized boolean ffree(FileTableEntry toDelete){
 
-        toDelete.count--;
-        toDelete.inode.toDisk(toDelete.iNumber);
-        toDelete.inode.unregisterIndexBlock();
-        table.removeElement(toDelete);
-        toDelete = null;
+        if(this.table.removeElement(toDelete)) {
+            --toDelete.inode.count;
+            switch(toDelete.inode.flag) {
+                case 1:
+                    toDelete.inode.flag = 0;
+                    break;
+                case 2:
+                    toDelete.inode.flag = 0;
+                case 3:
+                default:
+                    break;
+                case 4:
+                    toDelete.inode.flag = 3;
+                    break;
+                case 5:
+                    toDelete.inode.flag = 3;
+            }
 
-
-        this.notify();
-        return true;
+            toDelete.inode.toDisk(toDelete.iNumber);
+            toDelete = null;
+            this.notify();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean fempty(){
