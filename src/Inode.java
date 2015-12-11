@@ -38,9 +38,13 @@ public class Inode {
         indirect = SysLib.bytes2short(data, offset);
     }
 
-    public int toDisk(short iNumber) {
+    public void toDisk(FileTableEntry iNumber) {
 
-        return 1;
+        //return 1;
+    }
+
+    public void toDisk(short num){
+
     }
 
     public int write(int seek, int iNumber , byte[] buffer) {

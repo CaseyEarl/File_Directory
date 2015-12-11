@@ -191,7 +191,7 @@ public class Kernel {
                                 System.err.print((String) args);
                                 break;
                             case 3:
-                                return fs.write(param, (byte[]) args);
+                                //return fs.write(param, (byte[]) args);
 
                         }
                         return OK;

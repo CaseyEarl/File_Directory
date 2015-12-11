@@ -48,6 +48,14 @@ public class FileTable {
         return e;
     }
 
+    public boolean ffree(FileTableEntry toDelete){
+        return false;
+    }
+
+    public boolean fempty(){
+        return this.table.size() <= 1;
+    }
+
     public synchronized int write(int fdId, byte[] buffer){
 
 
