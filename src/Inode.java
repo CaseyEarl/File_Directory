@@ -1,7 +1,7 @@
 
 public class Inode {
     private final static int iNodeSize = 32;
-    private final static int directSize = 32;
+    private final static int directSize = 11;
 
     public int length;
     public short count;
