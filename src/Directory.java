@@ -26,31 +26,38 @@ public class Directory {
             String fname = new String(data, offset, maxChars * 2);
             fname.getChars(0, fsize[i], fnames[i], 0);
         }
-        //return
+        return 0;
     }
 
-    public byte[] directory2bytes() {
-        byte toReturn[];
 
-    }
 
     public short ialloc(String filename) {
         if (filename.equals("f1")) {
             return -1;
         }
 
+        return 1;
+    }
+
+    public byte[] directory2bytes() {
+        return new byte[100];
     }
 
     public boolean ifree(short iNumber) {
         if (iNumber == 1) {
             return true;
         }
+        return false;
     }
 
     public short namei(String filename) {
+        //must return the inumber of file
         if (filename.equals("/")) {
             return 0;
         }
+        return 1;
+
     }
+
 
 }

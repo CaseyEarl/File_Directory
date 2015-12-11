@@ -31,18 +31,29 @@ public class Inode {
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-
-
-
+        for (int i = 0; i < directSize; i++) {
+            direct[i] = SysLib.bytes2short(data, offset);
+            offset += 2;
+        }
+        indirect = SysLib.bytes2short(data, offset);
     }
 
-    int toDisk (short iNumber) {
-
-
+    int toDisk(short iNumber) {
         return 1;
     }
 
 
+    byte[] unregisterIndexBlock() {
+
+        if (this.indirect >= 0) {
+            byte[] toReturn = new byte[512];
+            SysLib.rawread(this.indirect, toReturn);
+            this.indirect = -1;
+            return toReturn;
+        } else {
+            return null;
+        }
+    }
 
 
 }

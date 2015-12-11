@@ -9,16 +9,16 @@ public class Superblock {
     public int inodeBlocks;
     public int freeList;
 
-    public Superblock(int var1) {
+    public Superblock(int diskSize) {
         byte[] var2 = new byte[512];
         SysLib.rawread(0, var2);
         this.totalBlocks = SysLib.bytes2int(var2, 0);
         this.inodeBlocks = SysLib.bytes2int(var2, 4);
         this.freeList = SysLib.bytes2int(var2, 8);
-        if(this.totalBlocks != var1 || this.inodeBlocks <= 0 || this.freeList < 2) {
-            this.totalBlocks = var1;
+        if(this.totalBlocks != diskSize || this.inodeBlocks <= 0 || this.freeList < 2) {
+            this.totalBlocks = diskSize;
             SysLib.cerr("default format( 64 )\n");
-            this.format();
+            this.format(diskSize);
         }
     }
 
@@ -31,17 +31,13 @@ public class Superblock {
         SysLib.cerr("Superblock synchronized\n");
     }
 
-    void format() {
-        this.format(64);
-    }
+    void format(int iBlocks) {
+        this.inodeBlocks = iBlocks;
 
-    void format(int var1) {
-        this.inodeBlocks = var1;
-
-        for(short var2 = 0; var2 < this.inodeBlocks; ++var2) {
-            Inode var3 = new Inode();
-            var3.flag = 0;
-            var3.toDisk(var2);
+        for(short i = 0; i < this.inodeBlocks; ++i) {
+            Inode iNode = new Inode();
+            iNode.flag = 0;
+            iNode.toDisk(i);
         }
 
         this.freeList = 2 + this.inodeBlocks * 32 / 512;
@@ -61,16 +57,16 @@ public class Superblock {
     }
 
     public int getFreeBlock() {
-        int var1 = this.freeList;
-        if(var1 != -1) {
+        int free = this.freeList;
+        if(free != -1) {
             byte[] var2 = new byte[512];
-            SysLib.rawread(var1, var2);
+            SysLib.rawread(free, var2);
             this.freeList = SysLib.bytes2int(var2, 0);
             SysLib.int2bytes(0, var2, 0);
-            SysLib.rawwrite(var1, var2);
+            SysLib.rawwrite(free, var2);
         }
 
-        return var1;
+        return free;
     }
 
     public boolean returnBlock(int var1) {
