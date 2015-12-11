@@ -90,7 +90,7 @@ public class Kernel {
                         // instantiate synchronized queues
                         ioQueue = new SyncQueue();
                         waitQueue = new SyncQueue(scheduler.getMaxThreads());
-                        fs = new FileSystem(Disk.blockSize);
+                        fs = new FileSystem(1000);
                         return OK;
                     case EXEC:
                         return sysExec((String[]) args);
@@ -190,6 +190,9 @@ public class Kernel {
                             case STDERR:
                                 System.err.print((String) args);
                                 break;
+                            case 3:
+                                //return fs.write(param, (byte[]) args);
+
                         }
                         return OK;
                     case CREAD:   // to be implemented in assignment 4
@@ -215,13 +218,14 @@ public class Kernel {
                         }
 
                     case CLOSE:   // to be implemented in project
+
                         return OK;
                     case SIZE:    // to be implemented in project
                         return OK;
                     case SEEK:    // to be implemented in project
                         return OK;
                     case FORMAT:  // to be implemented in project
-                        fs = new FileSystem(param);
+                        fs.format(param);
 
                         return OK;
                     case DELETE:  // to be implemented in project

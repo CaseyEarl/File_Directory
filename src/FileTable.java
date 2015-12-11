@@ -4,11 +4,12 @@ import java.util.Vector;
 
 public class FileTable {
     private Directory dir;
-    private Vector table;
+    private Vector<FileTableEntry> table;
 
-    FileTable(Directory directory) {
-        table = new Vector();
-        dir = directory;
+    FileTable(Directory setDir) {
+
+        dir = setDir;
+        table = new Vector<FileTableEntry>();
     }
 
 
@@ -30,19 +31,14 @@ public class FileTable {
                     } catch (InterruptedException e) {
 
                     }
-                } else if (inode.flag == 2) {
+                } else if (inode.flag > 1) {  //CHECK THIS. flag is short. compare to read which = 0 ?
                     iNumber = -1;
                     return null;
                 } else if (mode.equals("w")) {
 
                 }
-            } else if (inode.flag > 1) {  //CHECK THIS. flag is short. compare to read which = 0 ?
-                iNumber = -1;
-                return null;
-            } else if (mode.equals("w")) {
 
             }
-
         }
 
         inode.count++;
@@ -52,12 +48,31 @@ public class FileTable {
         return e;
     }
 
-    public synchronized boolean ffree(FileTableEntry e) {
-        return true;
+    public boolean ffree(FileTableEntry toDelete){
+        return false;
     }
 
-    public synchronized boolean fempty() {
-        return table.isEmpty();
+    public boolean fempty(){
+        return this.table.size() <= 1;
     }
+
+    public synchronized int write(int fdId, byte[] buffer){
+
+
+        for(int i = 0; i < this.table.size(); i++){
+            if(this.table.elementAt(i).iNumber == fdId){
+                return this.table.elementAt(i).write(buffer);
+            }
+        }
+        short iNum = (short)fdId;
+        Inode toAdd = new Inode(iNum);
+        toAdd.flag = 1;
+        FileTableEntry ftToAdd = new FileTableEntry(toAdd,iNum,"w");
+        int toReturn = ftToAdd.write(buffer);
+        this.table.addElement(ftToAdd);
+        toAdd.flag = 0;
+        return toReturn;
+    }
+
 
 }
