@@ -191,8 +191,8 @@ public class Kernel {
                                 System.err.print((String) args);
                                 break;
                             case 3:
-                                fs.write(param, (byte[]) args);
-                                break;
+                                return fs.write(param, (byte[]) args);
+
                         }
                         return OK;
                     case CREAD:   // to be implemented in assignment 4
@@ -218,6 +218,7 @@ public class Kernel {
                         }
 
                     case CLOSE:   // to be implemented in project
+
                         return OK;
                     case SIZE:    // to be implemented in project
                         return OK;

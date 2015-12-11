@@ -60,10 +60,10 @@ public class FileTable {
         Inode toAdd = new Inode(iNum);
         toAdd.flag = 1;
         FileTableEntry ftToAdd = new FileTableEntry(toAdd,iNum,"w");
-        ftToAdd.write(buffer);
+        int toReturn = ftToAdd.write(buffer);
         this.table.addElement(ftToAdd);
         toAdd.flag = 0;
-        return 1;
+        return toReturn;
     }
 
 }

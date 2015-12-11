@@ -31,24 +31,40 @@ public class Inode {
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-        for(int i = 0 ; i < directSize; i++) {
+        for (int i = 0; i < directSize; i++) {
             direct[i] = SysLib.bytes2short(data, offset);
             offset += 2;
         }
-        indirect = SysLib.bytes2short(data,offset);
+        indirect = SysLib.bytes2short(data, offset);
     }
 
-    public int toDisk (short iNumber) {
+    public int toDisk(short iNumber) {
 
         return 1;
     }
 
-    public int write(int seek, byte[] buffer){
+    public int write(int seek, int iNumber , byte[] buffer) {
 
-        return 1;
+        int blockNumber = 1 + iNumber / 16;
+        //byte[] data = new byte[Disk.blockSize];
+        //SysLib.rawwrite(blockNumber, buffer);
+        int offset = (iNumber % 16) * 32;
+
+        //length = SysLib.bytes2int(data, offset);
+        offset += 4;
+        //count = SysLib.bytes2short(data, offset);
+        count++;
+        offset += 2;
+        //flag = SysLib.bytes2short(data, offset);
+        offset += 2;
+        //offset += seek;
+        for (int i = 0; i < directSize && i < buffer.length; i++) {
+            direct[i] = buffer[i];
+            offset += 2;
+        }
+        indirect = buffer[buffer.length - 1];
+        return buffer.length;
     }
-
-
 
 
 }

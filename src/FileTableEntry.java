@@ -18,7 +18,7 @@ public class FileTableEntry {
     }
 
     public int write(byte[] buffer){
-        return this.inode.write(seekPtr,buffer);
+        return this.inode.write(seekPtr, iNumber,buffer);
     }
 
 }
