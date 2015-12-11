@@ -52,7 +52,7 @@ public class FileTable {
 
         toDelete.count--;
         toDelete.inode.toDisk(toDelete.iNumber);
-        toDelete.inode.unregisterIndexBlock();
+
         table.removeElement(toDelete);
         toDelete = null;
 
