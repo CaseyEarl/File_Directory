@@ -31,7 +31,7 @@ public class FileTable {
                     } catch (InterruptedException e) {
 
                     }
-                } else if (inode.flag > 1) {  //CHECK THIS. flag is short. compare to read which = 0 ?
+                } else if (inode.flag > 1) {
                     iNumber = -1;
                     return null;
                 } else if (mode.equals("w")) {
