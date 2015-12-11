@@ -223,7 +223,7 @@ public class Kernel {
 
                     case CLOSE:   // to be implemented in project
                         myTcb = scheduler.getMyTcb();
-                        fs.close(myTcb.getFtEnt(param));
+                        fs.close(myTcb.returnFd(param));
                         return OK;
                     case SIZE:    // to be implemented in project
                         return OK;

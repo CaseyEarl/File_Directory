@@ -67,6 +67,12 @@ public class FileTable {
                 case 5:
                     toDelete.inode.flag = 3;
             }
+        toDelete.count--;
+        toDelete.inode.toDisk(toDelete.iNumber);
+
+        table.removeElement(toDelete);
+        toDelete = null;
+
 
             toDelete.inode.toDisk(toDelete.iNumber);
             toDelete = null;

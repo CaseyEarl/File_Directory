@@ -63,27 +63,27 @@ public class FileSystem {
         }
     }
 
-    int read(FileTableEntry fileEnt, byte[] var2) {
+    int read(FileTableEntry fileEnt, byte[] buffer) {
         if(fileEnt.mode != "w" && fileEnt.mode != "a") {
             int var3 = 0;
-            int var4 = var2.length;
+            int bufferSize = buffer.length;
             synchronized(fileEnt) {
-                while(var4 > 0 && fileEnt.seekPtr < this.fsize(fileEnt)) {
+                while(bufferSize > 0 && fileEnt.seekPtr < this.fsize(fileEnt)) {
                     int var6 = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
                     if(var6 == -1) {
                         break;
                     }
 
-                    byte[] var7 = new byte[512];
-                    SysLib.rawread(var6, var7);
+                    byte[] block = new byte[512];
+                    SysLib.rawread(var6, block);
                     int var8 = fileEnt.seekPtr % 512;
                     int var9 = 512 - var8;
                     int var10 = this.fsize(fileEnt) - fileEnt.seekPtr;
-                    int var11 = Math.min(Math.min(var9, var4), var10);
-                    System.arraycopy(var7, var8, var2, var3, var11);
+                    int var11 = Math.min(Math.min(var9, bufferSize), var10);
+                    System.arraycopy(block, var8, buffer, var3, var11);
                     fileEnt.seekPtr += var11;
                     var3 += var11;
-                    var4 -= var11;
+                    bufferSize -= var11;
                 }
 
                 return var3;
@@ -94,7 +94,7 @@ public class FileSystem {
     }
 
     int write(FileTableEntry fileEnt, byte[] var2) {
-        if(fileEnt.mode == "r") {
+        if(fileEnt == null || fileEnt.mode == "r") {
             return -1;
         } else {
             synchronized(fileEnt) {
