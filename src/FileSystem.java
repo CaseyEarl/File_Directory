@@ -7,119 +7,119 @@ public class FileSystem {
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
-    public FileSystem(int var1) {
-        this.superblock = new SuperBlock(var1);
+    public FileSystem(int diskSize) {
+        this.superblock = new SuperBlock(diskSize);
         this.directory = new Directory(this.superblock.inodeBlocks);
         this.filetable = new FileTable(this.directory);
-        FileTableEntry var2 = this.open("/", "r");
-        int var3 = this.fsize(var2);
-        if(var3 > 0) {
-            byte[] var4 = new byte[var3];
-            this.read(var2, var4);
-            this.directory.bytes2directory(var4);
+        FileTableEntry ftEnt = this.open("/", "r");
+        int ftEntSize = this.fsize(ftEnt);
+        if(ftEntSize > 0) {
+            byte[] buffer = new byte[ftEntSize];
+            this.read(ftEnt, buffer);
+            this.directory.bytes2directory(buffer);
         }
 
-        this.close(var2);
+        this.close(ftEnt);
     }
 
     void sync() {
-        FileTableEntry var1 = this.open("/", "w");
-        byte[] var2 = this.directory.directory2bytes();
-        this.write(var1, var2);
-        this.close(var1);
+        FileTableEntry ftEnt = this.open("/", "w");
+        byte[] buffer = this.directory.directory2bytes();
+        this.write(ftEnt, buffer);
+        this.close(ftEnt);
         this.superblock.sync();
     }
 
-    boolean format(int var1) {
+    boolean format(int diskSize) {
         while(!this.filetable.fempty()) {
             ;
         }
 
-        this.superblock.format(var1);
+        this.superblock.format(diskSize);
         this.directory = new Directory(this.superblock.inodeBlocks);
         this.filetable = new FileTable(this.directory);
         return true;
     }
 
-    FileTableEntry open(String var1, String var2) {
-        FileTableEntry var3 = this.filetable.falloc(var1, var2);
-        return var2 == "w" && !this.deallocAllBlocks(var3)?null:var3;
+    FileTableEntry open(String fileName, String mode) {
+        FileTableEntry ftEnt = this.filetable.falloc(fileName, mode);
+        return mode == "w" && !this.deallocAllBlocks(ftEnt)?null:ftEnt;
     }
 
-    boolean close(FileTableEntry var1) {
-        synchronized(var1) {
-            --var1.count;
-            if(var1.count > 0) {
+    boolean close(FileTableEntry ftEnt) {
+        synchronized(ftEnt) {
+            --ftEnt.count;
+            if(ftEnt.count > 0) {
                 return true;
             }
         }
 
-        return this.filetable.ffree(var1);
+        return this.filetable.ffree(ftEnt);
     }
 
-    int fsize(FileTableEntry var1) {
-        synchronized(var1) {
-            return var1.inode.length;
+    int fsize(FileTableEntry ftEnt) {
+        synchronized(ftEnt) {
+            return ftEnt.inode.length;
         }
     }
 
     int read(FileTableEntry fileEnt, byte[] buffer) {
         if(fileEnt.mode != "w" && fileEnt.mode != "a") {
-            int var3 = 0;
+            int numBytes = 0;
             int bufferSize = buffer.length;
             synchronized(fileEnt) {
                 while(bufferSize > 0 && fileEnt.seekPtr < this.fsize(fileEnt)) {
-                    int var6 = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
-                    if(var6 == -1) {
+                    int targetBlock = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
+                    if(targetBlock == -1) {
                         break;
                     }
 
                     byte[] block = new byte[512];
-                    SysLib.rawread(var6, block);
-                    int var8 = fileEnt.seekPtr % 512;
-                    int var9 = 512 - var8;
-                    int var10 = this.fsize(fileEnt) - fileEnt.seekPtr;
-                    int var11 = Math.min(Math.min(var9, bufferSize), var10);
-                    System.arraycopy(block, var8, buffer, var3, var11);
-                    fileEnt.seekPtr += var11;
-                    var3 += var11;
-                    bufferSize -= var11;
+                    SysLib.rawread(targetBlock, block);
+                    int ptr = fileEnt.seekPtr % 512;
+                    int offset = 512 - ptr;
+                    int selection = this.fsize(fileEnt) - fileEnt.seekPtr;
+                    int min = Math.min(Math.min(offset, bufferSize), selection);
+                    System.arraycopy(block, ptr, buffer, numBytes, min);
+                    fileEnt.seekPtr += min;
+                    numBytes += min;
+                    bufferSize -= min;
                 }
 
-                return var3;
+                return numBytes;
             }
         } else {
             return -1;
         }
     }
 
-    int write(FileTableEntry fileEnt, byte[] var2) {
+    int write(FileTableEntry fileEnt, byte[] buffer) {
         if(fileEnt == null || fileEnt.mode == "r") {
             return -1;
         } else {
             synchronized(fileEnt) {
-                int var4 = 0;
-                int var5 = var2.length;
+                int count = 0;
+                int length = buffer.length;
 
-                while(var5 > 0) {
-                    int var6 = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
-                    if(var6 == -1) {
-                        short var7 = (short)this.superblock.getFreeBlock();
-                        switch(fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, var7)) {
+                while(length > 0) {
+                    int targetBlock = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
+                    if(targetBlock == -1) {
+                        short freeBlock = (short)this.superblock.getFreeBlock();
+                        switch(fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, freeBlock)) {
                             case -3:
-                                short var8 = (short)this.superblock.getFreeBlock();
-                                if(!fileEnt.inode.registerIndexBlock(var8)) {
+                                short freeBlock1 = (short)this.superblock.getFreeBlock();
+                                if(!fileEnt.inode.registerIndexBlock(freeBlock1)) {
                                     SysLib.cerr("ThreadOS: panic on write\n");
                                     return -1;
                                 }
 
-                                if(fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, var7) != 0) {
+                                if(fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, freeBlock) != 0) {
                                     SysLib.cerr("ThreadOS: panic on write\n");
                                     return -1;
                                 }
                             case 0:
                             default:
-                                var6 = var7;
+                                targetBlock = freeBlock;
                                 break;
                             case -2:
                             case -1:
@@ -128,95 +128,95 @@ public class FileSystem {
                         }
                     }
 
-                    byte[] var13 = new byte[512];
-                    if(SysLib.rawread(var6, var13) == -1) {
+                    byte[] otherBuffer = new byte[512];
+                    if(SysLib.rawread(targetBlock, otherBuffer) == -1) {
                         System.exit(2);
                     }
 
-                    int var14 = fileEnt.seekPtr % 512;
-                    int var9 = 512 - var14;
-                    int var10 = Math.min(var9, var5);
-                    System.arraycopy(var2, var4, var13, var14, var10);
-                    SysLib.rawwrite(var6, var13);
-                    fileEnt.seekPtr += var10;
-                    var4 += var10;
-                    var5 -= var10;
+                    int ptr = fileEnt.seekPtr % 512;
+                    int offset = 512 - ptr;
+                    int min = Math.min(offset, length);
+                    System.arraycopy(buffer, count, otherBuffer, ptr, min);
+                    SysLib.rawwrite(targetBlock, otherBuffer);
+                    fileEnt.seekPtr += min;
+                    count += min;
+                    length -= min;
                     if(fileEnt.seekPtr > fileEnt.inode.length) {
                         fileEnt.inode.length = fileEnt.seekPtr;
                     }
                 }
 
                 fileEnt.inode.toDisk(fileEnt.iNumber);
-                return var4;
+                return count;
             }
         }
     }
 
-    private boolean deallocAllBlocks(FileTableEntry var1) {
-        if(var1.inode.count != 1) {
+    private boolean deallocAllBlocks(FileTableEntry ftEnt) {
+        if(ftEnt.inode.count != 1) {
             return false;
         } else {
-            byte[] var2 = var1.inode.unregisterIndexBlock();
-            if(var2 != null) {
+            byte[] buffer = ftEnt.inode.unregisterIndexBlock();
+            if(buffer != null) {
                 byte var3 = 0;
 
-                short var4;
-                while((var4 = SysLib.bytes2short(var2, var3)) != -1) {
-                    this.superblock.returnBlock(var4);
+                short temp;
+                while((temp = SysLib.bytes2short(buffer, var3)) != -1) {
+                    this.superblock.returnBlock(temp);
                 }
             }
 
-            int var5 = 0;
+            int counter = 0;
 
             while(true) {
-                Inode var10001 = var1.inode;
-                if(var5 >= 11) {
-                    var1.inode.toDisk(var1.iNumber);
+                Inode thisiNode = ftEnt.inode;
+                if(counter >= 11) {
+                    thisiNode.toDisk(ftEnt.iNumber);
                     return true;
                 }
 
-                if(var1.inode.direct[var5] != -1) {
-                    this.superblock.returnBlock(var1.inode.direct[var5]);
-                    var1.inode.direct[var5] = -1;
+                if(thisiNode.direct[counter] != -1) {
+                    this.superblock.returnBlock(thisiNode.direct[counter]);
+                    thisiNode.direct[counter] = -1;
                 }
 
-                ++var5;
+                ++counter;
             }
         }
     }
 
-    boolean delete(String var1) {
-        FileTableEntry var2 = this.open(var1, "w");
-        short var3 = var2.iNumber;
-        return this.close(var2) && this.directory.ifree(var3);
+    boolean delete(String fileName) {
+        FileTableEntry ftEnt = this.open(fileName, "w");
+        short iNum = ftEnt.iNumber;
+        return this.close(ftEnt) && this.directory.ifree(iNum);
     }
 
-    int seek(FileTableEntry var1, int var2, int var3) {
-        synchronized(var1) {
+    int seek(FileTableEntry ftEnt, int offest, int var3) {
+        synchronized(ftEnt) {
             switch(var3) {
                 case 0:
-                    if(var2 >= 0 && var2 <= this.fsize(var1)) {
-                        var1.seekPtr = var2;
+                    if(offest >= 0 && offest <= this.fsize(ftEnt)) {
+                        ftEnt.seekPtr = offest;
                         break;
                     }
 
                     return -1;
                 case 1:
-                    if(var1.seekPtr + var2 >= 0 && var1.seekPtr + var2 <= this.fsize(var1)) {
-                        var1.seekPtr += var2;
+                    if(ftEnt.seekPtr + offest >= 0 && ftEnt.seekPtr + offest <= this.fsize(ftEnt)) {
+                        ftEnt.seekPtr += offest;
                         break;
                     }
 
                     return -1;
                 case 2:
-                    if(this.fsize(var1) + var2 < 0 || this.fsize(var1) + var2 > this.fsize(var1)) {
+                    if(this.fsize(ftEnt) + offest < 0 || this.fsize(ftEnt) + offest > this.fsize(ftEnt)) {
                         return -1;
                     }
 
-                    var1.seekPtr = this.fsize(var1) + var2;
+                    ftEnt.seekPtr = this.fsize(ftEnt) + offest;
             }
 
-            return var1.seekPtr;
+            return ftEnt.seekPtr;
         }
     }
 }
