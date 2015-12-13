@@ -48,57 +48,34 @@ public class FileTable {
         return e;
     }
 
-    public synchronized boolean ffree(FileTableEntry toDelete){
+    public synchronized boolean ffree(FileTableEntry toDelete) {
 
-        if(this.table.removeElement(toDelete)) {
-            --toDelete.inode.count;
-            switch(toDelete.inode.flag) {
-                case 1:
-                    toDelete.inode.flag = 0;
-                    break;
-                case 2:
-                    toDelete.inode.flag = 0;
-                case 3:
-                default:
-                    break;
-                case 4:
-                    toDelete.inode.flag = 3;
-                    break;
-                case 5:
-                    toDelete.inode.flag = 3;
-            }
         toDelete.count--;
         toDelete.inode.toDisk(toDelete.iNumber);
-
         table.removeElement(toDelete);
         toDelete = null;
+        this.notify();
+        return true;
 
 
-            toDelete.inode.toDisk(toDelete.iNumber);
-            toDelete = null;
-            this.notify();
-            return true;
-        } else {
-            return false;
-        }
     }
 
-    public boolean fempty(){
+    public boolean fempty() {
         return this.table.size() <= 1;
     }
 
-    public synchronized int write(int fdId, byte[] buffer){
+    public synchronized int write(int fdId, byte[] buffer) {
 
 
-        for(int i = 0; i < this.table.size(); i++){
-            if(this.table.elementAt(i).iNumber == fdId){
+        for (int i = 0; i < this.table.size(); i++) {
+            if (this.table.elementAt(i).iNumber == fdId) {
                 return this.table.elementAt(i).write(buffer);
             }
         }
-        short iNum = (short)fdId;
+        short iNum = (short) fdId;
         Inode toAdd = new Inode(iNum);
         toAdd.flag = 1;
-        FileTableEntry ftToAdd = new FileTableEntry(toAdd,iNum,"w");
+        FileTableEntry ftToAdd = new FileTableEntry(toAdd, iNum, "w");
         int toReturn = ftToAdd.write(buffer);
         this.table.addElement(ftToAdd);
         toAdd.flag = 0;
