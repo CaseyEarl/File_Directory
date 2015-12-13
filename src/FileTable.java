@@ -49,14 +49,10 @@ public class FileTable {
     }
 
     public synchronized boolean ffree(FileTableEntry toDelete){
-
         toDelete.count--;
         toDelete.inode.toDisk(toDelete.iNumber);
-
         table.removeElement(toDelete);
         toDelete = null;
-
-
         this.notify();
         return true;
     }
