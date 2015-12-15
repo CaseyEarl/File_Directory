@@ -48,7 +48,8 @@ public class FileTable {
         return e;
     }
 
-    public synchronized boolean ffree(FileTableEntry toDelete) {
+
+    public synchronized boolean ffree(FileTableEntry toDelete){
 
         toDelete.count--;
         toDelete.inode.toDisk(toDelete.iNumber);
