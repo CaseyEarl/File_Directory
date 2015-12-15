@@ -59,7 +59,7 @@ public class FileSystem {
 
     int fsize(FileTableEntry ftEnt) {
         synchronized(ftEnt) {
-            return ftEnt.inode.length;
+            return ftEnt.inode.getLength();
         }
     }
 
@@ -68,6 +68,7 @@ public class FileSystem {
             int numBytes = 0;
             int bufferSize = buffer.length;
             synchronized(fileEnt) {
+               int tempSize = this.fsize(fileEnt);
                 while(bufferSize > 0 && fileEnt.seekPtr < this.fsize(fileEnt)) {
                     int targetBlock = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
                     if(targetBlock == -1) {

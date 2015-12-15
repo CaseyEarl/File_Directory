@@ -30,13 +30,15 @@ public class Directory {
     }
 
 
-
     public short ialloc(String filename) {
-        if (filename.equals("f1")) {
-            return -1;
+        for (short i = 1; i < this.fsize.length; i++) {
+            if (this.fsize[i] == 0) {
+                this.fsize[i] = Math.min(filename.length(), maxChars);
+                filename.getChars(0, this.fsize[i], this.fnames[i], 0);
+                return i;
+            }
         }
-
-        return 1;
+        return (short) -1;
     }
 
     public byte[] directory2bytes() {
