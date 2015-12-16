@@ -196,7 +196,8 @@ public class Kernel {
                             case 3:
                                 //return fs.write(param, (byte[]) args);
                                 myTcb = scheduler.getMyTcb();
-                                return fs.write(myTcb.getFtEnt(param), (byte[]) args);
+                                FileTableEntry ftEnt = myTcb.getFtEnt(param);
+                                return fs.write(ftEnt, (byte[]) args);
                         }
                         return OK;
                     case CREAD:   // to be implemented in assignment 4
@@ -228,12 +229,22 @@ public class Kernel {
                     case SIZE:    // to be implemented in project
                         return OK;
                     case SEEK:    // to be implemented in project
-                        return OK;
+                        if ((myTcb = scheduler.getMyTcb()) != null) {
+                            int[] i = (int[]) args;
+                            FileTableEntry ftEnt = myTcb.getFtEnt(param);
+                            return fs.seek(ftEnt, i[0], i[1]);
+
+                        }
+                        else{
+                            return ERROR;
+                        }
                     case FORMAT:  // to be implemented in project
                         fs.format(param);
 
                         return OK;
                     case DELETE:  // to be implemented in project
+
+                        fs.delete((String)args);
                         return OK;
                 }
                 return ERROR;
