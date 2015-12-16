@@ -52,10 +52,8 @@ public class Directory {
     }
 
     public boolean ifree(short iNumber) {
-        if (iNumber == 1) {
-            return true;
-        }
-        return false;
+        this.fsize[iNumber] = 0;
+        return true;
     }
 
     public short namei(String filename) {

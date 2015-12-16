@@ -216,34 +216,35 @@ public class FileSystem {
     }
 
     boolean delete(String fileName) {
-        FileTableEntry ftEnt = this.open(fileName, "w");
+        FileTableEntry ftEnt = this.open(fileName, "r");
+        ftEnt.inode.flag = 2;
         short iNum = ftEnt.iNumber;
         return this.close(ftEnt) && this.directory.ifree(iNum);
     }
 
-    int seek(FileTableEntry ftEnt, int offest, int var3) {
-        synchronized (ftEnt) {
-            switch (var3) {
+    int seek(FileTableEntry ftEnt, int offsest, int whence) {
+        synchronized(ftEnt) {
+            switch(whence) {
                 case 0:
-                    if (offest >= 0 && offest <= this.fsize(ftEnt)) {
-                        ftEnt.seekPtr = offest;
+                    if(offsest >= 0 && offsest <= this.fsize(ftEnt)) {
+                        ftEnt.seekPtr = offsest;
                         break;
                     }
 
                     return -1;
                 case 1:
-                    if (ftEnt.seekPtr + offest >= 0 && ftEnt.seekPtr + offest <= this.fsize(ftEnt)) {
-                        ftEnt.seekPtr += offest;
+                    if(ftEnt.seekPtr + offsest >= 0 && ftEnt.seekPtr + offsest <= this.fsize(ftEnt)) {
+                        ftEnt.seekPtr += offsest;
                         break;
                     }
 
                     return -1;
                 case 2:
-                    if (this.fsize(ftEnt) + offest < 0 || this.fsize(ftEnt) + offest > this.fsize(ftEnt)) {
+                    if(this.fsize(ftEnt) + offsest < 0 || this.fsize(ftEnt) + offsest > this.fsize(ftEnt)) {
                         return -1;
                     }
 
-                    ftEnt.seekPtr = this.fsize(ftEnt) + offest;
+                    ftEnt.seekPtr = this.fsize(ftEnt) + offsest;
             }
 
             return ftEnt.seekPtr;

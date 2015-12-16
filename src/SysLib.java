@@ -1,7 +1,6 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
+/*
+Author: Casey Earl & Norell Tagle
+ */
 
 import java.util.StringTokenizer;
 

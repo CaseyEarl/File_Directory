@@ -1,8 +1,8 @@
 /**
  * Inode.java
- *
+ * <p/>
  * Authors: Casey Earl and Norell Tagle
- *
+ * <p/>
  * Dec 18 2015
  */
 
@@ -45,9 +45,6 @@ public class Inode {
         indirect = SysLib.bytes2short(data, offset);
     }
 
-    int toDisk(FileTableEntry iNumber) {
-        return 1;
-    }
 
     void toDisk(short iNumber) {
         byte[] buffer = new byte[32];
@@ -60,7 +57,7 @@ public class Inode {
         offset += 2;
 
         int i;
-        for(i = 0; i < 11; ++i) {
+        for (i = 0; i < 11; ++i) {
             SysLib.short2bytes(this.direct[i], buffer, offset);
             offset += 2;
         }
@@ -82,7 +79,7 @@ public class Inode {
         byte[] data = new byte[Disk.blockSize];
         //SysLib.rawwrite(blockNumber, buffer);
         int offset = (iNumber % 16) * 32;
-        length = SysLib.bytes2int(buffer,offset);
+        length = SysLib.bytes2int(buffer, offset);
         offset += 4;
         //count = SysLib.bytes2short(data, offset);
         count++;

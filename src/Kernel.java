@@ -196,7 +196,41 @@ public class Kernel {
                             case 3:
                                 //return fs.write(param, (byte[]) args);
                                 myTcb = scheduler.getMyTcb();
-                                return fs.write(myTcb.getFtEnt(param), (byte[]) args);
+                                FileTableEntry ftEnt = myTcb.getFtEnt(param);
+                                return fs.write(ftEnt, (byte[]) args);
+                            case 31:
+                            case 30:
+                            case 29:
+                            case 28:
+                            case 27:
+                            case 26:
+                            case 25:
+                            case 24:
+                            case 23:
+                            case 22:
+                            case 21:
+                            case 20:
+                            case 19:
+                            case 18:
+                            case 17:
+                            case 16:
+                            case 15:
+                            case 14:
+                            case 13:
+                            case 12:
+                            case 11:
+                            case 10:
+                            case 9:
+                            case 8:
+                            case 7:
+                            case 6:
+                            case 5:
+                            case 4:
+                                myTcb = scheduler.getMyTcb();
+                                FileTableEntry ftEnt1 = myTcb.getFtEnt(param);
+                                return fs.write(ftEnt1, (byte[]) args);
+
+
                         }
                         return OK;
                     case CREAD:   // to be implemented in assignment 4
@@ -228,12 +262,22 @@ public class Kernel {
                     case SIZE:    // to be implemented in project
                         return OK;
                     case SEEK:    // to be implemented in project
-                        return OK;
+                        if ((myTcb = scheduler.getMyTcb()) != null) {
+                            int[] i = (int[]) args;
+                            FileTableEntry ftEnt = myTcb.getFtEnt(param);
+                            return fs.seek(ftEnt, i[0], i[1]);
+
+                        }
+                        else{
+                            return ERROR;
+                        }
                     case FORMAT:  // to be implemented in project
                         fs.format(param);
 
                         return OK;
                     case DELETE:  // to be implemented in project
+
+                        fs.delete((String)args);
                         return OK;
                 }
                 return ERROR;
