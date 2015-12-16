@@ -49,9 +49,30 @@ public class Inode {
         return 1;
     }
 
-    public void toDisk(short iNumber) {
+    void toDisk(short var1) {
+        byte[] var2 = new byte[32];
+        byte var3 = 0;
+        SysLib.int2bytes(this.length, var2, var3);
+        int var6 = var3 + 4;
+        SysLib.short2bytes(this.count, var2, var6);
+        var6 += 2;
+        SysLib.short2bytes(this.flag, var2, var6);
+        var6 += 2;
 
-        //return 1;
+        int var4;
+        for(var4 = 0; var4 < 11; ++var4) {
+            SysLib.short2bytes(this.direct[var4], var2, var6);
+            var6 += 2;
+        }
+
+        SysLib.short2bytes(this.indirect, var2, var6);
+        var6 += 2;
+        var4 = 1 + var1 / 16;
+        byte[] var5 = new byte[512];
+        SysLib.rawread(var4, var5);
+        var6 = var1 % 16 * 32;
+        System.arraycopy(var2, 0, var5, var6, 32);
+        SysLib.rawwrite(var4, var5);
     }
 
     public int write(int seek, int iNumber, byte[] buffer) {
@@ -61,7 +82,7 @@ public class Inode {
         byte[] data = new byte[Disk.blockSize];
         //SysLib.rawwrite(blockNumber, buffer);
         int offset = (iNumber % 16) * 32;
-//        length = SysLib.int2bytes();
+        length = SysLib.bytes2int(buffer,offset);
         offset += 4;
         //count = SysLib.bytes2short(data, offset);
         count++;
@@ -216,31 +237,7 @@ public class Inode {
         var4 += 2;
     }
 
-    void toDisk(short var1) {
-        byte[] var2 = new byte[32];
-        byte var3 = 0;
-        SysLib.int2bytes(this.length, var2, var3);
-        int var6 = var3 + 4;
-        SysLib.short2bytes(this.count, var2, var6);
-        var6 += 2;
-        SysLib.short2bytes(this.flag, var2, var6);
-        var6 += 2;
 
-        int var4;
-        for(var4 = 0; var4 < 11; ++var4) {
-            SysLib.short2bytes(this.direct[var4], var2, var6);
-            var6 += 2;
-        }
-
-        SysLib.short2bytes(this.indirect, var2, var6);
-        var6 += 2;
-        var4 = 1 + var1 / 16;
-        byte[] var5 = new byte[512];
-        SysLib.rawread(var4, var5);
-        var6 = var1 % 16 * 32;
-        System.arraycopy(var2, 0, var5, var6, 32);
-        SysLib.rawwrite(var4, var5);
-    }
 
     int findIndexBlock() {
         return this.indirect;
