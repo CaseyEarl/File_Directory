@@ -188,10 +188,10 @@ public class FileSystem {
         } else {
             byte[] buffer = ftEnt.inode.unregisterIndexBlock();
             if (buffer != null) {
-                byte var3 = 0;
+                byte tempByte = 0;
 
                 short temp;
-                while ((temp = SysLib.bytes2short(buffer, var3)) != -1) {
+                while ((temp = SysLib.bytes2short(buffer, tempByte)) != -1) {
                     this.superblock.returnBlock(temp);
                 }
             }

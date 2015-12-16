@@ -74,9 +74,9 @@ public class Inode {
     }
 
 
-    boolean registerIndexBlock(short var1) {
-        for (int var2 = 0; var2 < 11; ++var2) {
-            if (this.direct[var2] == -1) {
+    boolean registerIndexBlock(short indirectNum) {
+        for (int i = 0; i < 11; ++i) {
+            if (this.direct[i] == -1) {
                 return false;
             }
         }
@@ -84,56 +84,56 @@ public class Inode {
         if (this.indirect != -1) {
             return false;
         } else {
-            this.indirect = var1;
-            byte[] var4 = new byte[512];
+            this.indirect = indirectNum;
+            byte[] buffer = new byte[512];
 
-            for (int var3 = 0; var3 < 256; ++var3) {
-                SysLib.short2bytes((short) -1, var4, var3 * 2);
+            for (int i = 0; i < 256; ++i) {
+                SysLib.short2bytes((short) -1, buffer, i * 2);
             }
 
-            SysLib.rawwrite(var1, var4);
+            SysLib.rawwrite(indirectNum, buffer);
             return true;
         }
     }
 
 
-    int findTargetBlock(int var1) {
-        int var2 = var1 / 512;
-        if (var2 < 11) {
-            return this.direct[var2];
+    int findTargetBlock(int offset) {
+        int direct = offset / 512;
+        if (direct < 11) {
+            return this.direct[direct];
         } else if (this.indirect < 0) {
             return -1;
         } else {
-            byte[] var3 = new byte[512];
-            SysLib.rawread(this.indirect, var3);
-            int var4 = var2 - 11;
-            return SysLib.bytes2short(var3, var4 * 2);
+            byte[] buffer = new byte[512];
+            SysLib.rawread(this.indirect, buffer);
+            int shift = direct - 11;
+            return SysLib.bytes2short(buffer, shift * 2);
         }
     }
 
-    int registerTargetBlock(int var1, short var2) {
-        int var3 = var1 / 512;
-        if (var3 < 11) {
-            if (this.direct[var3] >= 0) {
+    int registerTargetBlock(int offset, short direct) {
+        int index = offset / 512;
+        if (index < 11) {
+            if (this.direct[index] >= 0) {
                 return -1;
-            } else if (var3 > 0 && this.direct[var3 - 1] == -1) {
+            } else if (index > 0 && this.direct[index - 1] == -1) {
                 return -2;
             } else {
-                this.direct[var3] = var2;
+                this.direct[index] = direct;
                 return 0;
             }
         } else if (this.indirect < 0) {
             return -3;
         } else {
-            byte[] var4 = new byte[512];
-            SysLib.rawread(this.indirect, var4);
-            int var5 = var3 - 11;
-            if (SysLib.bytes2short(var4, var5 * 2) > 0) {
-                SysLib.cerr("indexBlock, indirectNumber = " + var5 + " contents = " + SysLib.bytes2short(var4, var5 * 2) + "\n");
+            byte[] buffer = new byte[512];
+            SysLib.rawread(this.indirect, buffer);
+            int index2 = index - 11;
+            if (SysLib.bytes2short(buffer, index2 * 2) > 0) {
+                SysLib.cerr("indexBlock, indirectNumber = " + index2 + " contents = " + SysLib.bytes2short(buffer, index2 * 2) + "\n");
                 return -1;
             } else {
-                SysLib.short2bytes(var2, var4, var5 * 2);
-                SysLib.rawwrite(this.indirect, var4);
+                SysLib.short2bytes(direct, buffer, index2 * 2);
+                SysLib.rawwrite(this.indirect, buffer);
                 return 0;
             }
         }
@@ -141,10 +141,10 @@ public class Inode {
 
     byte[] unregisterIndexBlock() {
         if (this.indirect >= 0) {
-            byte[] var1 = new byte[512];
-            SysLib.rawread(this.indirect, var1);
+            byte[] buffer = new byte[512];
+            SysLib.rawread(this.indirect, buffer);
             this.indirect = -1;
-            return var1;
+            return buffer;
         } else {
             return null;
         }
