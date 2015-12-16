@@ -3,6 +3,8 @@
  *
  * Optimized by Casey Earl and Norell Tagle
  * Provided by Professor
+ * The only change from default Disk was the removal of sleep code so that it
+ * would format faster
  *
  * Dec 18 2015
  */
