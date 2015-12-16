@@ -23,7 +23,7 @@ public class FileSystem {
         this.filetable = new FileTable(this.directory);
         FileTableEntry ftEnt = this.open("/", "r");
         int ftEntSize = this.fsize(ftEnt);
-        if(ftEntSize > 0) { //if the size is valid 
+        if (ftEntSize > 0) { //if the size is valid
             byte[] buffer = new byte[ftEntSize];
             this.read(ftEnt, buffer);
             this.directory.bytes2directory(buffer);
@@ -32,6 +32,8 @@ public class FileSystem {
         this.close(ftEnt);
     }
 
+    //Sync
+    //
     void sync() {
         FileTableEntry ftEnt = this.open("/", "w");
         byte[] buffer = this.directory.directory2bytes();
@@ -40,8 +42,11 @@ public class FileSystem {
         this.superblock.sync();
     }
 
+    // Format
+    // Takes in a diskSize to determine number of files to be created
+    // Return a true on success, false otherwise
     boolean format(int diskSize) {
-        while(!this.filetable.fempty()) {
+        while (!this.filetable.fempty()) {
             ;
         }
 
@@ -51,15 +56,21 @@ public class FileSystem {
         return true;
     }
 
+    // Open
+    // Open the file specified by fileName and check if mode is "r",
+    // "w", "w+", or "a"
     FileTableEntry open(String fileName, String mode) {
         FileTableEntry ftEnt = this.filetable.falloc(fileName, mode);
-        return mode == "w" && !this.deallocAllBlocks(ftEnt)?null:ftEnt;
+        return mode == "w" && !this.deallocAllBlocks(ftEnt) ? null : ftEnt;
     }
 
+    // Close
+    // Close the file and unregister the file descriptor of the file table entry passed in
+    // Return true on success and false otherwise
     boolean close(FileTableEntry ftEnt) {
-        synchronized(ftEnt) {
+        synchronized (ftEnt) {
             --ftEnt.count;
-            if(ftEnt.count > 0) {
+            if (ftEnt.count > 0) {
                 return true;
             }
         }
@@ -67,21 +78,28 @@ public class FileSystem {
         return this.filetable.ffree(ftEnt);
     }
 
+    // FSize
+    // Return the size of the File Table entry passed in in bytes
     int fsize(FileTableEntry ftEnt) {
-        synchronized(ftEnt) {
+        synchronized (ftEnt) {
             return ftEnt.inode.getLength();
         }
     }
 
+
+    // Read
+    // Start at the seek pointer and start reading from fileEnt
+    // and increment the seek pointer
+    // Return the number of bytes read
     int read(FileTableEntry fileEnt, byte[] buffer) {
-        if(fileEnt.mode != "w" && fileEnt.mode != "a") {
+        if (fileEnt.mode != "w" && fileEnt.mode != "a") {
             int numBytes = 0;
             int bufferSize = buffer.length;
-            synchronized(fileEnt) {
-               int tempSize = this.fsize(fileEnt);
-                while(bufferSize > 0 && fileEnt.seekPtr < this.fsize(fileEnt)) {
+            synchronized (fileEnt) {
+                int tempSize = this.fsize(fileEnt);
+                while (bufferSize > 0 && fileEnt.seekPtr < this.fsize(fileEnt)) {
                     int targetBlock = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
-                    if(targetBlock == -1) {
+                    if (targetBlock == -1) {
                         break;
                     }
 
@@ -104,27 +122,28 @@ public class FileSystem {
         }
     }
 
+
     int write(FileTableEntry fileEnt, byte[] buffer) {
-        if(fileEnt == null || fileEnt.mode == "r") {
+        if (fileEnt == null || fileEnt.mode == "r") {
             return -1;
         } else {
-            synchronized(fileEnt) {
+            synchronized (fileEnt) {
                 int count = 0;
                 int length = buffer.length;
 
-                while(length > 0) {
+                while (length > 0) {
                     int targetBlock = fileEnt.inode.findTargetBlock(fileEnt.seekPtr);
-                    if(targetBlock == -1) {
-                        short freeBlock = (short)this.superblock.getFreeBlock();
-                        switch(fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, freeBlock)) {
+                    if (targetBlock == -1) {
+                        short freeBlock = (short) this.superblock.getFreeBlock();
+                        switch (fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, freeBlock)) {
                             case -3:
-                                short freeBlock1 = (short)this.superblock.getFreeBlock();
-                                if(!fileEnt.inode.registerIndexBlock(freeBlock1)) {
+                                short freeBlock1 = (short) this.superblock.getFreeBlock();
+                                if (!fileEnt.inode.registerIndexBlock(freeBlock1)) {
                                     SysLib.cerr("ThreadOS: panic on write\n");
                                     return -1;
                                 }
 
-                                if(fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, freeBlock) != 0) {
+                                if (fileEnt.inode.registerTargetBlock(fileEnt.seekPtr, freeBlock) != 0) {
                                     SysLib.cerr("ThreadOS: panic on write\n");
                                     return -1;
                                 }
@@ -140,7 +159,7 @@ public class FileSystem {
                     }
 
                     byte[] otherBuffer = new byte[512];
-                    if(SysLib.rawread(targetBlock, otherBuffer) == -1) {
+                    if (SysLib.rawread(targetBlock, otherBuffer) == -1) {
                         System.exit(2);
                     }
 
@@ -152,7 +171,7 @@ public class FileSystem {
                     fileEnt.seekPtr += min;
                     count += min;
                     length -= min;
-                    if(fileEnt.seekPtr > fileEnt.inode.length) {
+                    if (fileEnt.seekPtr > fileEnt.inode.length) {
                         fileEnt.inode.length = fileEnt.seekPtr;
                     }
                 }
@@ -164,29 +183,29 @@ public class FileSystem {
     }
 
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
-        if(ftEnt.inode.count != 1) {
+        if (ftEnt.inode.count != 1) {
             return false;
         } else {
             byte[] buffer = ftEnt.inode.unregisterIndexBlock();
-            if(buffer != null) {
+            if (buffer != null) {
                 byte var3 = 0;
 
                 short temp;
-                while((temp = SysLib.bytes2short(buffer, var3)) != -1) {
+                while ((temp = SysLib.bytes2short(buffer, var3)) != -1) {
                     this.superblock.returnBlock(temp);
                 }
             }
 
             int counter = 0;
 
-            while(true) {
+            while (true) {
                 Inode thisiNode = ftEnt.inode;
-                if(counter >= 11) {
+                if (counter >= 11) {
                     thisiNode.toDisk(ftEnt.iNumber);
                     return true;
                 }
 
-                if(thisiNode.direct[counter] != -1) {
+                if (thisiNode.direct[counter] != -1) {
                     this.superblock.returnBlock(thisiNode.direct[counter]);
                     thisiNode.direct[counter] = -1;
                 }
@@ -203,24 +222,24 @@ public class FileSystem {
     }
 
     int seek(FileTableEntry ftEnt, int offest, int var3) {
-        synchronized(ftEnt) {
-            switch(var3) {
+        synchronized (ftEnt) {
+            switch (var3) {
                 case 0:
-                    if(offest >= 0 && offest <= this.fsize(ftEnt)) {
+                    if (offest >= 0 && offest <= this.fsize(ftEnt)) {
                         ftEnt.seekPtr = offest;
                         break;
                     }
 
                     return -1;
                 case 1:
-                    if(ftEnt.seekPtr + offest >= 0 && ftEnt.seekPtr + offest <= this.fsize(ftEnt)) {
+                    if (ftEnt.seekPtr + offest >= 0 && ftEnt.seekPtr + offest <= this.fsize(ftEnt)) {
                         ftEnt.seekPtr += offest;
                         break;
                     }
 
                     return -1;
                 case 2:
-                    if(this.fsize(ftEnt) + offest < 0 || this.fsize(ftEnt) + offest > this.fsize(ftEnt)) {
+                    if (this.fsize(ftEnt) + offest < 0 || this.fsize(ftEnt) + offest > this.fsize(ftEnt)) {
                         return -1;
                     }
 

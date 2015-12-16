@@ -49,30 +49,30 @@ public class Inode {
         return 1;
     }
 
-    void toDisk(short var1) {
-        byte[] var2 = new byte[32];
-        byte var3 = 0;
-        SysLib.int2bytes(this.length, var2, var3);
-        int var6 = var3 + 4;
-        SysLib.short2bytes(this.count, var2, var6);
-        var6 += 2;
-        SysLib.short2bytes(this.flag, var2, var6);
-        var6 += 2;
+    void toDisk(short iNumber) {
+        byte[] buffer = new byte[32];
+        byte seek = 0;
+        SysLib.int2bytes(this.length, buffer, seek);
+        int offset = seek + 4;
+        SysLib.short2bytes(this.count, buffer, offset);
+        offset += 2;
+        SysLib.short2bytes(this.flag, buffer, offset);
+        offset += 2;
 
-        int var4;
-        for(var4 = 0; var4 < 11; ++var4) {
-            SysLib.short2bytes(this.direct[var4], var2, var6);
-            var6 += 2;
+        int i;
+        for(i = 0; i < 11; ++i) {
+            SysLib.short2bytes(this.direct[i], buffer, offset);
+            offset += 2;
         }
 
-        SysLib.short2bytes(this.indirect, var2, var6);
-        var6 += 2;
-        var4 = 1 + var1 / 16;
-        byte[] var5 = new byte[512];
-        SysLib.rawread(var4, var5);
-        var6 = var1 % 16 * 32;
-        System.arraycopy(var2, 0, var5, var6, 32);
-        SysLib.rawwrite(var4, var5);
+        SysLib.short2bytes(this.indirect, buffer, offset);
+        offset += 2;
+        i = 1 + iNumber / 16;
+        byte[] block = new byte[512];
+        SysLib.rawread(i, block);
+        offset = iNumber % 16 * 32;
+        System.arraycopy(buffer, 0, block, offset, 32);
+        SysLib.rawwrite(i, block);
     }
 
     public int write(int seek, int iNumber, byte[] buffer) {
