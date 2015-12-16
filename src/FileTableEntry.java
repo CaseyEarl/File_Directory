@@ -1,4 +1,10 @@
-
+/**
+ * FileTableEntry.java
+ *
+ * Authors: Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ */
 public class FileTableEntry {
     public int seekPtr;
     public final Inode inode;

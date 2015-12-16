@@ -1,7 +1,10 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
+/**
+ * Disk.java
+ *
+ * Optimized by Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ */
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

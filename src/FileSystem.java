@@ -1,19 +1,29 @@
-
+/**
+ * FileSystem.java
+ *
+ * Authors: Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ */
 public class FileSystem {
+
     private SuperBlock superblock;
     private Directory directory;
     private FileTable filetable;
+    //To keep track of the seek pointers
     private final int SEEK_SET = 0;
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
+    //Constructor
+    //Take in the diskSize to initialize the private variables
     public FileSystem(int diskSize) {
         this.superblock = new SuperBlock(diskSize);
         this.directory = new Directory(this.superblock.inodeBlocks);
         this.filetable = new FileTable(this.directory);
         FileTableEntry ftEnt = this.open("/", "r");
         int ftEntSize = this.fsize(ftEnt);
-        if(ftEntSize > 0) {
+        if(ftEntSize > 0) { //if the size is valid 
             byte[] buffer = new byte[ftEntSize];
             this.read(ftEnt, buffer);
             this.directory.bytes2directory(buffer);

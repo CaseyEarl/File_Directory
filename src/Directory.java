@@ -1,4 +1,10 @@
-
+/**
+ * Directory.java
+ *
+ * Authors: Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ */
 public class Directory {
 
     private static int maxChars = 30;

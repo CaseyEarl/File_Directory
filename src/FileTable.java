@@ -1,3 +1,11 @@
+/**
+ * FileTable.java
+ *
+ * Authors: Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ */
+
 import java.io.File;
 import java.io.InterruptedIOException;
 import java.util.Vector;

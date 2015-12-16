@@ -1,4 +1,10 @@
-
+/**
+ * Inode.java
+ *
+ * Authors: Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ */
 
 public class Inode {
     private final static int iNodeSize = 32;
