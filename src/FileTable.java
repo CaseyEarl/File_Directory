@@ -73,23 +73,5 @@ public class FileTable {
         return this.table.size() <= 1;
     }
 
-    public synchronized int write(int fdId, byte[] buffer) {
-
-
-        for (int i = 0; i < this.table.size(); i++) {
-            if (this.table.elementAt(i).iNumber == fdId) {
-                return this.table.elementAt(i).write(buffer);
-            }
-        }
-        short iNum = (short) fdId;
-        Inode toAdd = new Inode(iNum);
-        toAdd.flag = 1;
-        FileTableEntry ftToAdd = new FileTableEntry(toAdd, iNum, "w");
-        int toReturn = ftToAdd.write(buffer);
-        this.table.addElement(ftToAdd);
-        toAdd.flag = 0;
-        return toReturn;
-    }
-
 
 }

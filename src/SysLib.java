@@ -1,6 +1,7 @@
 /*
 Author: Casey Earl & Norell Tagle
- */
+Provided by Professor
+*/
 
 import java.util.StringTokenizer;
 

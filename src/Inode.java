@@ -63,7 +63,8 @@ public class Inode {
         }
 
         SysLib.short2bytes(this.indirect, buffer, offset);
-        offset += 2;
+
+
         i = 1 + iNumber / 16;
         byte[] block = new byte[512];
         SysLib.rawread(i, block);
@@ -72,32 +73,6 @@ public class Inode {
         SysLib.rawwrite(i, block);
     }
 
-    public int write(int seek, int iNumber, byte[] buffer) {
-        //set the length
-
-        int blockNumber = 1 + iNumber / 16;
-        byte[] data = new byte[Disk.blockSize];
-        //SysLib.rawwrite(blockNumber, buffer);
-        int offset = (iNumber % 16) * 32;
-        length = SysLib.bytes2int(buffer, offset);
-        offset += 4;
-        //count = SysLib.bytes2short(data, offset);
-        count++;
-        offset += 2;
-        //flag = SysLib.bytes2short(data, offset);
-        offset += 2;
-        //offset += seek;
-        for (int i = 0; i < directSize && i < buffer.length; i++) {
-            direct[i] = buffer[i];
-            offset += 2;
-        }
-        indirect = buffer[buffer.length - 1];
-        return buffer.length;
-    }
-
-    int findIndexBlock() {
-        return this.indirect;
-    }
 
     boolean registerIndexBlock(short var1) {
         for (int var2 = 0; var2 < 11; ++var2) {
@@ -120,6 +95,7 @@ public class Inode {
             return true;
         }
     }
+
 
     int findTargetBlock(int var1) {
         int var2 = var1 / 512;

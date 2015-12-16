@@ -2,6 +2,7 @@
  * Disk.java
  *
  * Optimized by Casey Earl and Norell Tagle
+ * Provided by Professor
  *
  * Dec 18 2015
  */
