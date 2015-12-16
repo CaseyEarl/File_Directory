@@ -4,7 +4,12 @@
  * Authors: Casey Earl and Norell Tagle
  *
  * Dec 18 2015
+ *
+ * File Table Entry that holds the Inode, a seek ptr, inumber, count and mode.
+ * Very basic data type
  */
+
+
 public class FileTableEntry {
     public int seekPtr;
     public final Inode inode;
@@ -23,8 +28,5 @@ public class FileTableEntry {
         }
     }
 
-    public int write(byte[] buffer){
-        return this.inode.write(seekPtr, iNumber,buffer);
-    }
 
 }
