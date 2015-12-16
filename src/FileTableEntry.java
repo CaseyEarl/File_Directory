@@ -1,6 +1,12 @@
-/*
-File Table Entry that holds the Inode, a seek ptr, inumber, count and mode.
-Very basic data type
+/**
+ * FileTableEntry.java
+ *
+ * Authors: Casey Earl and Norell Tagle
+ *
+ * Dec 18 2015
+ *
+ * File Table Entry that holds the Inode, a seek ptr, inumber, count and mode.
+ * Very basic data type
  */
 
 

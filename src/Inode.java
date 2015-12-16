@@ -1,4 +1,10 @@
-
+/**
+ * Inode.java
+ * <p/>
+ * Authors: Casey Earl and Norell Tagle
+ * <p/>
+ * Dec 18 2015
+ */
 
 public class Inode {
     private final static int iNodeSize = 32;
@@ -39,33 +45,31 @@ public class Inode {
         indirect = SysLib.bytes2short(data, offset);
     }
 
-    void toDisk(short var1) {
-        byte[] tempByte = new byte[32];
-        byte offset = 0;
 
-        SysLib.int2bytes(this.length, tempByte, offset);
-        int offsetInt = offset + 4;
-
-        SysLib.short2bytes(this.count, tempByte, offsetInt);
-        offsetInt += 2;
-
-        SysLib.short2bytes(this.flag, tempByte, offsetInt);
-        offsetInt += 2;
+    void toDisk(short iNumber) {
+        byte[] buffer = new byte[32];
+        byte seek = 0;
+        SysLib.int2bytes(this.length, buffer, seek);
+        int offset = seek + 4;
+        SysLib.short2bytes(this.count, buffer, offset);
+        offset += 2;
+        SysLib.short2bytes(this.flag, buffer, offset);
+        offset += 2;
 
         int i;
-        for(i = 0; i < 11; ++i) {
-            SysLib.short2bytes(this.direct[i], tempByte, offsetInt);
-            offsetInt += 2;
+        for (i = 0; i < 11; ++i) {
+            SysLib.short2bytes(this.direct[i], buffer, offset);
+            offset += 2;
         }
 
-        SysLib.short2bytes(this.indirect, tempByte, offsetInt);
-        i = 1 + var1 / 16;
-        byte[] var5 = new byte[512];
-        SysLib.rawread(i, var5);
-        offsetInt = var1 % 16 * 32;
-
-        System.arraycopy(tempByte, 0, var5, offsetInt, 32);
-        SysLib.rawwrite(i, var5);
+        SysLib.short2bytes(this.indirect, buffer, offset);
+        offset += 2;
+        i = 1 + iNumber / 16;
+        byte[] block = new byte[512];
+        SysLib.rawread(i, block);
+        offset = iNumber % 16 * 32;
+        System.arraycopy(buffer, 0, block, offset, 32);
+        SysLib.rawwrite(i, block);
     }
 
     public int write(int seek, int iNumber, byte[] buffer) {
@@ -75,7 +79,7 @@ public class Inode {
         byte[] data = new byte[Disk.blockSize];
         //SysLib.rawwrite(blockNumber, buffer);
         int offset = (iNumber % 16) * 32;
-        length = SysLib.bytes2int(buffer,offset);
+        length = SysLib.bytes2int(buffer, offset);
         offset += 4;
         //count = SysLib.bytes2short(data, offset);
         count++;
