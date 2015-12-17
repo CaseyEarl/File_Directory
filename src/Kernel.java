@@ -177,8 +177,8 @@ public class Kernel {
                                 System.out.println("threadOS: caused read errors");
                                 return ERROR;
                             case 3:
-                                myTcb = scheduler.getMyTcb();
-                                return fs.read(myTcb.getFtEnt(param), (byte[])args);
+                                myTcb = scheduler.getMyTcb();   //Gets the current Thread Control Block
+                                return fs.read(myTcb.getFtEnt(param), (byte[])args);    //Reads the contents from the file/disk and returns them
                         }
                         // return FileSystem.read( param, byte args[] );
                         return ERROR;
@@ -194,10 +194,10 @@ public class Kernel {
                                 System.err.print((String) args);
                                 break;
                             case 3:
-                                //return fs.write(param, (byte[]) args);
-                                myTcb = scheduler.getMyTcb();
-                                FileTableEntry ftEnt = myTcb.getFtEnt(param);
-                                return fs.write(ftEnt, (byte[]) args);
+
+                                myTcb = scheduler.getMyTcb(); //Gets the current Thread Control Block
+                                FileTableEntry ftEnt = myTcb.getFtEnt(param); //Retrieves the file entry based off the parameter
+                                return fs.write(ftEnt, (byte[]) args);  //Writes the data passed by args to the file
                             case 31:
                             case 30:
                             case 29:
@@ -226,9 +226,9 @@ public class Kernel {
                             case 6:
                             case 5:
                             case 4:
-                                myTcb = scheduler.getMyTcb();
-                                FileTableEntry ftEnt1 = myTcb.getFtEnt(param);
-                                return fs.write(ftEnt1, (byte[]) args);
+                                myTcb = scheduler.getMyTcb();   //Gets the current Thread Control Block
+                                FileTableEntry ftEnt1 = myTcb.getFtEnt(param);  //Retrieves the file entry based off the parameter
+                                return fs.write(ftEnt1, (byte[]) args); //Writes the data passed by args to the file
 
 
                         }
@@ -244,11 +244,11 @@ public class Kernel {
                         cache.flush();
                         return OK;
                     case OPEN:    // to be implemented in project
-                        if ((myTcb = scheduler.getMyTcb()) != null) {
-                            String[] s = (String[]) args;
-                            FileTableEntry ent = fs.open(s[0], s[1]);
+                        if ((myTcb = scheduler.getMyTcb()) != null) {   //Gets the current Thread Control Block
+                            String[] s = (String[]) args;   //Type casts the args
+                            FileTableEntry ent = fs.open(s[0], s[1]);   //opens the file based off the name and mode of file
                             int fd = myTcb.getFd(ent);
-                            return fd;
+                            return fd;  //Returns the File ID
 
                         }
                         else{
@@ -256,8 +256,8 @@ public class Kernel {
                         }
 
                     case CLOSE:   // to be implemented in project
-                        myTcb = scheduler.getMyTcb();
-                        fs.close(myTcb.returnFd(param));
+                        myTcb = scheduler.getMyTcb();   //Get's current Thread Control Block
+                        fs.close(myTcb.returnFd(param));    //Calls file systems close on the parameter
                         return OK;
                     case SIZE:    // to be implemented in project
                         return OK;
@@ -272,12 +272,11 @@ public class Kernel {
                             return ERROR;
                         }
                     case FORMAT:  // to be implemented in project
-                        fs.format(param);
-
+                        fs.format(param);   //Formats the file system based off interrupt parameter
                         return OK;
                     case DELETE:  // to be implemented in project
 
-                        fs.delete((String)args);
+                        fs.delete((String)args); //Calls file systems close on the parameter type casted from args
                         return OK;
                 }
                 return ERROR;
